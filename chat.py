@@ -11,8 +11,11 @@ from openai import OpenAI
 import os
 
 # 连接 SQLite 数据库
-DB_FILE = "/root/Schema-Value/code/chat_history.db"
-DB_PATH = '/root/Schema-Value/data/bird/bird/dev/dev_databases'
+DB_FILE = "data/chat_history.db"
+DB_PATH = 'data/dev_databases'
+# 读取 JSON 数据
+DATA_PATH = "data/bird_dev_copy2.json"
+
 
 def get_db_connection():
     """建立数据库连接并创建表"""
@@ -131,8 +134,6 @@ if "selected_button" not in st.session_state:
 
 
 
-# 读取 JSON 数据
-DATA_PATH = "/root/Schema-Value/data/bird/dataset/bird_dev_copy2.json"
 
 def load_data():
     try:
