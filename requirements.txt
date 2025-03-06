@@ -139,11 +139,12 @@ pydub==0.25.1
 Pygments==2.17.2
 pyjnius==1.6.1
 pyparsing==3.1.2
-pyserini==0.39.0
+pyserini<0.20.0
 python-dateutil 
 python-dotenv==1.0.1
 python-Levenshtein==0.26.1
 python-multipart==0.0.9
+nmslib
 pytz==2024.1
 PyYAML==6.0.1
 pyzmq 
