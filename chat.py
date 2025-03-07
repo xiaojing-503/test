@@ -14,7 +14,7 @@ import os
 DB_FILE = "data/chat_history.db"
 DB_PATH = 'data/dev_databases'
 # 读取 JSON 数据
-DATA_PATH = "data/bird_dev_copy2.json"
+DATA_PATH = "data/bird_dev_copy2_updated.json"
 
 
 def get_db_connection():
@@ -156,10 +156,11 @@ def show_sql_info(input):
         st.session_state.db_id = item["db_id"]
         # 组合返回信息
         output_message = f"""
-        **Question**: {item['question']}\n
+        **db_id**: {item['db_id']}\n
+        **question**: {item['question']}\n
         **evidence**: {item['evidence']}\n
-        **Gold SQL**: {item['err_gold']}\n
-        **Pred SQL**: {item['err_pred']}\n
+        **gold SQL**: {item['err_gold']}\n
+        **pred SQL**: {item['err_pred']}\n
         **error**: {item['err_type']}
         """
         
@@ -167,6 +168,18 @@ def show_sql_info(input):
 
     return "未找到该 SQL 相关信息, 请输入合法的id!"  # 如果输入不在数据中，返回提示
 
+def show_full_schema(input):
+    data_dict = load_data()
+    # print(data_dict[input])
+    # print(input)
+    input_id = int(input)
+    
+    if input_id in data_dict:
+        item = data_dict[input_id]
+        # 存储 db_id 到 session_state
+        full_schema = item["full_schema"]
+        return full_schema
+    return "请输入id, 如果报错那一定是没有这个数据库!"
 def parse_schema(sql):
     sql_schemas = get_sql_schema(sql) 
     values = extract_values(sql)
@@ -176,7 +189,7 @@ def parse_schema(sql):
     # 假设format_database_schema是已定义的函数，用来格式化架构  
     new_schema = format_database_schema(schema_mapping)  
     
-    return f"解析的 Schema 结果：{new_schema}"
+    return f"SQL Schema 解析结果：{new_schema}"
 
 def parse_skeleton(sql):
     skeleton = get_sql_skeleton(sql)
@@ -221,19 +234,20 @@ def ask_llm(prompt):
     response = get_deepseek_response(prompt)
     return f"LLM 回答：{response}"
 
-cols = st.columns(5)
-button_labels = ["显示SQL信息", "解析schema", "解析skeleton", "执行SQL", "提问LLM"]
-button_functions = [show_sql_info, parse_schema, parse_skeleton, execute_sql, ask_llm]
+cols = st.columns(6)
+button_labels = ["显示SQL信息", "完整schema", "解析schema", "解析skeleton", "执行SQL", "提问LLM"]
+button_hints = ["输入id, 显示SQL信息", "输入id, 显示完整schema", "输入SQL, 解析schema", "输入SQL, 解析skeleton", "输入SQL, 执行SQL", "提问LLM"]
+button_functions = [show_sql_info, show_full_schema, parse_schema, parse_skeleton, execute_sql, ask_llm]
 
 # 遍历按钮
-for i in range(5):
+for i in range(6):
     if cols[i].button(button_labels[i], key=f"btn_{i}"):
         st.session_state.show_input = True  # 显示输入框
         st.session_state.selected_button = i  # 记录点击的按钮
 
 # 只有点击按钮后，才显示输入框
 if st.session_state.show_input:
-    prompt = st.chat_input(button_labels[st.session_state.selected_button]+"....")
+    prompt = st.chat_input(button_hints[st.session_state.selected_button]+"....")
     
     if prompt:  # 只有在用户输入后才记录消息
         # 先显示用户输入
